@@ -11,6 +11,7 @@ const Formulario = () => {
     const [Cantidad, setCantidad] = useState('');
     const [ValorTotal, setValorTotal] = useState(0);
     const [ListaPedido, setListaPedido] = useState([]);
+    const [id, setId] = useState('');
     useEffect( ()=>{
         const validarSelec =  ()=>{
             var Peso = 5000;
@@ -67,6 +68,7 @@ const Formulario = () => {
         }
         obtenerPedido();
     }, [])
+
     const limpiar = ()=>{
         setTipoMaterial('')
         setTipoJoya('')
@@ -76,6 +78,14 @@ const Formulario = () => {
         setValor(0)
         setCantidad('')
     }
+
+    const eliminar = async id=>{
+        try {
+            await deleteDoc(doc(db, 'pedido', id))
+        } catch (error) {
+            console.log(error)
+        }
+    }    
 
     const guardar = async(e)=>{
         e.preventDefault()
@@ -154,7 +164,8 @@ const Formulario = () => {
                         ListaPedido.map(item=>(
                             <li className='list-group-item' key={item.id}>
                                 <p className='lead'> Manilla de {item.TipoMaterial} con dije de {item.TipoJoya} en forma de {item.Dije} </p>
-                                <p className='lead'> Valor total {item.ValorTotal} en {item.Moneda}</p>
+                                <p className='lead'> Valor total: {item.ValorTotal} {item.Moneda} </p>
+                                <button className='btn btn-danger btn-sn fload-end mx-2' onClick={()=>eliminar(item.id)}>Eliminar</button>
                             </li>
                         ))
                     }
