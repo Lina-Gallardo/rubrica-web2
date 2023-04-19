@@ -12,6 +12,7 @@ const Formulario = () => {
     const [ValorTotal, setValorTotal] = useState(0);
     const [ListaPedido, setListaPedido] = useState([]);
     const [id, setId] = useState('');
+    const [ModoEdision, setModoEdision] = useState(false);
     useEffect( ()=>{
         const validarSelec =  ()=>{
             var Peso = 5000;
@@ -115,14 +116,56 @@ const Formulario = () => {
             console.log(error)
         }
     }
+
+    const editarPedido = async e=>{
+        e.preventDefault();
+        try {
+            const docRef = doc(db, 'pedido', id);
+            await updateDoc(docRef,{
+                Moneda: Moneda,
+                TipoMaterial: TipoMaterial,
+                Dije: Dije,
+                TipoJoya: TipoJoya,
+                Valor: Valor,
+                Cantidad: Cantidad,
+                ValorTotal: ValorTotal
+            })
+            const nuevoArray = ListaPedido.map(
+                item=>item.id === id? {id:id, Moneda: Moneda, TipoMaterial: TipoMaterial, Dije: Dije, TipoJoya: TipoJoya, Valor: Valor, Cantidad: Cantidad, ValorTotal: ValorTotal}:item
+            )
+            setListaPedido(nuevoArray)
+            limpiar()
+            setModoEdision(false)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const editar = item =>{
+        setMoneda(item.Moneda)
+        setTipoMaterial(item.TipoMaterial)
+        setDije(item.Dije)
+        setTipoJoya(item.TipoJoya)
+        setValor(item.Valor)
+        setCantidad(item.Cantidad)
+        setValorTotal(item.ValorTotal)
+        setId(item.id)
+        setModoEdision(true)
+    }
+
+    const cancelar = ()=>{
+        setModoEdision(false)
+        limpiar()
+    }
+
   return (
     <div className="container mt-5">
         <h1 className="text-center">Formulario</h1>
         <hr/>
         <div className="row">
             <div className="col-6">
-                <h4 className="text-center">Selecciona tus manillas</h4>
-                <form onSubmit={guardar}> 
+                <h4 className="text-center">{ModoEdision?'Modificar Pedido':'Arma tu Pedido'}</h4>
+                <form onSubmit={ModoEdision? editarPedido:guardar}> 
                     <select required value={Moneda} onChange={(e)=>setMoneda(e.target.value)} className="form-select mb-4" name="Document" id=''>
                         <option defaultChecked>Seleccione el tipo de moneda</option>
                         <option value="Pesos Colombianos">Pesos Colombianos</option>
@@ -148,12 +191,25 @@ const Formulario = () => {
                     <label className='label mb-4' htmlFor="">Valor unitario</label>
                     <input required className='form-control mb-4' type="number" value={Valor} disabled />
                     <label className='label mb-4' htmlFor="">Cantidad</label>
-                    <input required className='form-control mb-4' type="number" value={Cantidad} onChange={(e)=>setCantidad(e.target.value)} min={0} placeholder='cantidad' />
+                    <input required className='form-control mb-4' type="number" value={Cantidad} onChange={(e)=>setCantidad(e.target.value)} min={1} placeholder='cantidad' />
                     <label className='label mb-4' htmlFor="">Valor Total</label>
                     <input required className='form-control mb-4' type="number" value={ValorTotal} disabled />
                     <div className='pb-4'>
-                        <button className='btn btn-primary btn-block'>Agregar</button>
-                        <button className='btn btn-warning btn-block mx-2' onClick={()=>limpiar()}> Cancelar</button>
+                        {
+                            ModoEdision?
+                            (
+                                <>
+                                    <button className='btn btn-success btn-block mx-2'>Actualizar</button>
+                                    <button className='btn btn-danger btn-block' onClick={()=>cancelar()}>Cancelar</button>
+                                </>
+                            ):
+                            (
+                                <>
+                                    <button className='btn btn-primary btn-block'>Agregar</button>
+                                    <button className='btn btn-danger btn-block mx-2' onClick={()=>limpiar()}> Cancelar</button>
+                                </>
+                            )
+                        }
                     </div>
                 </form>
             </div>
@@ -163,8 +219,9 @@ const Formulario = () => {
                     {
                         ListaPedido.map(item=>(
                             <li className='list-group-item' key={item.id}>
-                                <p className='lead'> Manilla de {item.TipoMaterial} con dije de {item.TipoJoya} en forma de {item.Dije} </p>
+                                <p className='lead'> Manilla de {item.TipoMaterial} con dije de {item.TipoJoya} en forma de {item.Dije} cantidad: {item.Cantidad} valor por unidad {item.Valor} </p>
                                 <p className='lead'> Valor total: {item.ValorTotal} {item.Moneda} </p>
+                                <button className='btn btn-warning btn-sn fload-end mx-2' onClick={()=>editar(item)}>Editar</button>
                                 <button className='btn btn-danger btn-sn fload-end mx-2' onClick={()=>eliminar(item.id)}>Eliminar</button>
                             </li>
                         ))
