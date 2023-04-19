@@ -13,6 +13,7 @@ const Formulario = () => {
     const [ListaPedido, setListaPedido] = useState([]);
     const [id, setId] = useState('');
     const [ModoEdision, setModoEdision] = useState(false);
+    const [TotalPedido, setTotalPedido] = useState([])
     useEffect( ()=>{
         const validarSelec =  ()=>{
             var Peso = 5000;
@@ -216,11 +217,12 @@ const Formulario = () => {
             <div className="col-6" >
                 <h4 className="text-center" >Carrito de compras</h4>
                 <ul className="list-group">
-                    {
-                        ListaPedido.map(item=>(
+                    {   
+                        ListaPedido.map(item=>(                          
                             <li className='list-group-item' key={item.id}>
                                 <p className='lead'> Manilla de {item.TipoMaterial} con dije de {item.TipoJoya} en forma de {item.Dije} cantidad: {item.Cantidad} valor por unidad {item.Valor} </p>
                                 <p className='lead'> Valor total: {item.ValorTotal} {item.Moneda} </p>
+                                <p className='lead'> El total en {item.Moneda=='Dolares'?'Pesos Colombianos':'Dolares'} es: {item.Moneda=='Dolares'?item.ValorTotal*5000:item.ValorTotal/5000} </p>
                                 <button className='btn btn-warning btn-sn fload-end mx-2' onClick={()=>editar(item)}>Editar</button>
                                 <button className='btn btn-danger btn-sn fload-end mx-2' onClick={()=>eliminar(item.id)}>Eliminar</button>
                             </li>
